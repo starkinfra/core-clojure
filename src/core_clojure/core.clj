@@ -1,5 +1,5 @@
 (ns core-clojure.core
-  "SDK to facilitate Clojure integrations with the StarkBank API."
+  "Core functionalities for the StarkInfra, StarkBank and StarkSign Clojure SDKs"
   (:refer-clojure :exclude [get set update])
   (:require [core-clojure.utils.rest]
             ))
