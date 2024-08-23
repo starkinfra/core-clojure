@@ -1,9 +1,7 @@
 (ns core-clojure.user)
 
-(def private-key-content "-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEIMYJ8sHNdOaDgmHqre26O2hByw1LDwMOgjuX67jiW6QYoAcGBSuBBAAK\noUQDQgAE8O6e/QoLFA51pIdOSJI/C34q7zPLo/f3GKCoJS1VYJBxpihqb1brcB4X\nNQfJu/7wSFc/Id/y1yPtHVMOFfRRQg==\n-----END EC PRIVATE KEY-----")
-
 (defn user []
   {:environment "sandbox"
-   :id  "6293779816382464"
-   :private-key private-key-content
+   :id (System/getenv "SANDBOX_ID"); "9999999999999999"
+   :private-key (System/getenv "SANDBOX_PRIVATE_KEY"); "-----BEGIN EC PRIVATE KEY-----\nMHUCAQEEIUozJdDjfNVL9ulX1CmRW7a7TgmeaFsem7G5GzFAyky2HaAHBgUrgQQA\nCqFEA0IABJlS4omSpIcq/MC1a39wProUxPlpcsirelSHOzGmwKJ4ZtYHhW7bYr1Y\nxX4Ae2b2ff/v/GNgn3nSsJ73QaUgn7s=\n-----END EC PRIVATE KEY-----"
    :type "project"})

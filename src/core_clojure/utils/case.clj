@@ -9,7 +9,7 @@
   (let [parts (clojure.string/split (name payload) #"-")]
     (keyword (str (first parts) (apply str (map clojure.string/capitalize (rest parts)))))))
 
-(defn transform-keys [payload]
+(defn transform-keys-camel [payload]
   (walk/postwalk
    (fn [x]
      (if (map? x)
@@ -20,20 +20,23 @@
 (defn kebab-map-to-camel-json [payload]
   (if (or (nil? payload) (empty? payload))
     ""
-    (chesire/generate-string (transform-keys payload)))
+    (chesire/generate-string (transform-keys-camel payload)))
   )
 
 (defn camel-to-kebab [s]
-  (let [pattern (re-pattern "([a-z])([A-Z])")]
-    (-> s
-        (str/replace pattern "$1-$2")
-        str/lower-case)))
+  (-> s
+      (str/replace #"([a-z])([A-Z])" "$1-$2")
+      (str/lower-case)))
 
-(defn transform-keys-to-kebab [m]
-  (into {}
-        (for [[k v] m]
-          [(keyword (camel-to-kebab (name k))) v])))
+(defn cast-keys-to-kebab [m]
+  (letfn [(transform-key [k]
+            (if (keyword? k)
+              (keyword (camel-to-kebab (name k)))
+              k))]
+    (walk/postwalk (fn [x] (if (map? x)
+                        (into {} (map (fn [[k v]] [(transform-key k) v]) x))
+                        x)) m)))
 
-(defn camel-json-to-kebab-map [json-str]
-  (let [parsed-json (chesire/parse-string json-str true)]
-    (transform-keys-to-kebab parsed-json)))
+(defn json-to-map
+  [json-string]
+  (chesire/parse-string json-string true))
