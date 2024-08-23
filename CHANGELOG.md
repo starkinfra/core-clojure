@@ -13,6 +13,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Added
+- Api parser
+
+## [0.1.1] - 2024-08-07
+### Added
 - kebab to camel parser
 
 ## [0.1.0] - 2024-08-01

@@ -19,12 +19,46 @@
              "0.0.0"
              (user)
              "invoice"
-             {:limit 10
-              :status "created"}
+             {:limit 1
+              :status "paid"}
              "v2"
              "en-US"
-             15)] 
-      (is (= (str (type item)) "class clojure.lang.PersistentHashMap")))))
+             15)]
+      (is (int?
+           (:amount (rest/get-id
+                     "bank"
+                     "0.0.0"
+                     (user)
+                     "invoice"
+                     (:id item)
+                     {}
+                     "v2"
+                     "en-US"
+                     15)))) 
+      (is (string?
+           (rest/get-content
+            "bank"
+            "0.0.0"
+            (user)
+            "invoice"
+            (:id item)
+            "pdf"
+            {}
+            "v2"
+            "en-US"
+            15)))
+      (is (contains? (rest/get-sub-resource
+                      "bank"
+                      "0.0.0"
+                      (user)
+                      "invoice"
+                      (:id item)
+                      "payment"
+                      {}
+                      "v2"
+                      "en-US"
+                      15) :payment))
+     )))
   
 
 
@@ -45,53 +79,6 @@
           )
       )
     ))
-
-
-
-(deftest rest-get-id
-  (testing "get id method "
-    (let [invoice (rest/get-id
-                    "bank"
-                    "0.0.0"
-                    (user)
-                    "invoice"
-                    "5297659795472384"
-                    "v2"
-                    "en-US"
-                    15)]
-      (is (int?
-           (:amount invoice)))
-    )))
-
-(deftest rest-get-content
-  (testing "get content method "
-    (let [invoice (rest/get-content
-                   "bank"
-                   "0.0.0"
-                   (user)
-                   "invoice"
-                   "5297659795472384"
-                   "pdf"
-                   "v2"
-                   "en-US"
-                   15)]
-      (is (string?
-           invoice)))))
-
-(deftest rest-get-sub-resource
-  (testing "get sub resource method "
-    (let [invoice-payment (rest/get-sub-resource
-                   "bank"
-                   "0.0.0"
-                   (user)
-                   "invoice"
-                   "5297659795472384"
-                   "payment"
-                   "v2"
-                   "en-US"
-                   15)]
-      (is (contains? invoice-payment :payment))
-      )))
 
 (deftest rest-get-public-key
   (testing "get public key method "

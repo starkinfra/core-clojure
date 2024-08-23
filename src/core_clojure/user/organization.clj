@@ -18,7 +18,8 @@
       :id id
       :private-key (:private-key validated-user)
       :access-id (access-id id workspace-id)
-      :workspace-id workspace-id})))
+      :workspace-id workspace-id
+      :type "organization"})))
 
 (defn orgaization-replace [organization workspace-id]
    (assoc organization :workspace-id workspace-id))

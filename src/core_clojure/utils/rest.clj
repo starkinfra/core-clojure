@@ -1,7 +1,7 @@
 (ns core-clojure.utils.rest
   (:require [core-clojure.utils.api :refer [build-resource-map endpoint
                                             last-name last-name-plural]]
-            [core-clojure.utils.case :refer [camel-json-to-kebab-map]]
+            [core-clojure.utils.case :refer [json-to-map cast-keys-to-kebab]]
             [core-clojure.utils.request :refer [fetch]]))
 
 
@@ -14,16 +14,16 @@
                      sdk-version
                      user
                      :get
-                     path
+                     (endpoint path)
                      ""
                      query
                      api-version
                      language
                      timeout
                      ""
-                     true))
-     {:cursor (:cursor (camel-json-to-kebab-map (:content @request)))
-      :content (resource (camel-json-to-kebab-map (:content @request)))}
+                     true)) 
+     {:cursor (:cursor (json-to-map (:content @request)))
+      :content (resource (cast-keys-to-kebab (json-to-map (:content @request))))}
     ))
 
 (defn get-stream
@@ -34,14 +34,15 @@
                             sdk-version
                             user
                             path
-                            (assoc query
-                                   :limit (if (:limit query)
-                                            (min (:limit query) 100)
-                                            (:limit query)))
+                            (if (:limit query)
+                              (assoc query :limit (min (:limit query) 100))
+                              query)
                             api-version
                             language
                             timeout)
-                  cursor (:cursor response)
+                  cursor (if (= (:cursor response) "")
+                           nil
+                          (:cursor response))
                   items (:content response)
                   limit (:limit query)]
               (lazy-seq
@@ -57,10 +58,10 @@
     (fetch-items query)))
 
 (defn get-id
-  [host sdk-version user path id api-version language timeout]
+  [host sdk-version user path id query api-version language timeout]
   (let [request (atom "")
         resource (keyword (last-name path))
-        url (str path "/" id)]
+        url (str (endpoint path) "/" id)]
     (reset! request (fetch
                      host
                      sdk-version
@@ -68,20 +69,21 @@
                      :get
                      url
                      ""
-                     ""
+                     query
                      api-version
                      language
                      timeout
                      ""
                      true))
-    (resource (camel-json-to-kebab-map (:content @request))) 
+    (resource (cast-keys-to-kebab (json-to-map (:content @request)))) 
     )
   )
 
 (defn get-content
-  [host sdk-version user path id sub-resource api-version language timeout]
+  "adicionar params para serem passados na query"
+  [host sdk-version user path id sub-resource query api-version language timeout]
   (let [request (atom "")
-        url (str path "/" id "/" sub-resource)]
+        url (str (endpoint path) "/" id "/" sub-resource)]
     (reset! request (fetch
                      host
                      sdk-version
@@ -89,7 +91,7 @@
                      :get
                      url
                      ""
-                     ""
+                     query
                      api-version
                      language
                      timeout
@@ -100,9 +102,9 @@
   )
 
 (defn get-sub-resource
-  [host sdk-version user path id sub-resource api-version language timeout]
+  [host sdk-version user path id sub-resource query api-version language timeout]
   (let [request (atom "")
-        url (str path "/" id "/" (endpoint sub-resource))]
+        url (str (endpoint path) "/" id "/" (endpoint sub-resource))]
     (reset! request (fetch
                      host
                      sdk-version
@@ -110,13 +112,13 @@
                      :get
                      url
                      ""
-                     ""
+                     query
                      api-version
                      language
                      timeout
                      ""
                      true))
-    (camel-json-to-kebab-map (:content @request))
+    (cast-keys-to-kebab (json-to-map (:content @request)))
     )
   )
 
@@ -138,7 +140,7 @@
                      timeout
                      ""
                      true))
-    (:content (get (resource (camel-json-to-kebab-map (:content @request))) 0))
+    (:content (get (resource (cast-keys-to-kebab (json-to-map (:content @request)))) 0))
     )
   )
 
@@ -158,7 +160,7 @@
                      timeout
                      ""
                      true))
-    (camel-json-to-kebab-map (:content @request))
+    (cast-keys-to-kebab (json-to-map (:content @request)))
     )
   )
 
@@ -180,7 +182,7 @@
                      timeout
                      ""
                      true))
-    (resource (camel-json-to-kebab-map (:content @request))))
+    (resource (cast-keys-to-kebab (json-to-map (:content @request)))))
   )
 
 (defn post-single 
@@ -200,7 +202,7 @@
                      timeout
                      ""
                      true))
-    (resource (camel-json-to-kebab-map (:content @request))))
+    (resource (cast-keys-to-kebab (json-to-map (:content @request)))))
   )
 
 (defn post-sub-resource
@@ -220,7 +222,7 @@
                      timeout
                      ""
                      true))
-    (camel-json-to-kebab-map (:content @request)))
+    (cast-keys-to-kebab (json-to-map (:content @request))))
   )
 
 (defn delete-id [host sdk-version user path id api-version language timeout]
@@ -239,7 +241,7 @@
                      timeout
                      ""
                      true)) 
-    (camel-json-to-kebab-map (:content @request)))
+    (cast-keys-to-kebab (json-to-map (:content @request))))
   )
 
 (defn patch-id [host sdk-version user path payload id api-version language timeout ]
@@ -259,7 +261,7 @@
                      timeout
                      ""
                      true))
-    (resource (camel-json-to-kebab-map (:content @request))))
+    (resource (cast-keys-to-kebab (json-to-map (:content @request)))))
   )
 
 (defn get-raw
@@ -278,7 +280,7 @@
                      timeout
                      prefix
                      throw-error))
-    @request
+    {:status (:status @request) :content (cast-keys-to-kebab (json-to-map (:content @request)))}
     )
   )
 
@@ -298,7 +300,7 @@
                      timeout
                      prefix
                      throw-error))
-    @request
+    {:status (:status @request) :content (cast-keys-to-kebab (json-to-map (:content @request)))}
     )
   )
 
@@ -318,7 +320,7 @@
                       timeout
                       prefix
                       throw-error))
-     @request
+     {:status (:status @request) :content (cast-keys-to-kebab (json-to-map (:content @request)))}
     )
   )
 
@@ -338,7 +340,7 @@
                       timeout
                       prefix
                       throw-error))
-     @request
+     {:status (:status @request) :content (cast-keys-to-kebab (json-to-map (:content @request)))}
     )
   )
 
@@ -358,6 +360,6 @@
                       timeout
                       prefix
                       throw-error))
-     @request
+     {:status (:status @request) :content (cast-keys-to-kebab (json-to-map (:content @request)))}
     )
   )

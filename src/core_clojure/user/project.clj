@@ -7,8 +7,9 @@
 
 (defn project [environment id private-key]
   (let [validated-user (validate private-key environment)]
-    {:environment (:environment validated-user)
+    {:environment environment
      :id id
-     :private-key (:private-key validated-user)
-     :access-id (access-id id)})
+     :private-key private-key
+     :access-id (access-id id)
+     :type "project"})
   )
