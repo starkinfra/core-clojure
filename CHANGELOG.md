@@ -12,12 +12,11 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - PATCH version when backwards compatible bug **fixes** are implemented.
 
 ## [Unreleased]
-### Added
-- Api parser
 
-## [0.1.1] - 2024-08-07
+## [0.2.0] - 2024-09-16
 ### Added
 - kebab to camel parser
+- Api parser
 
 ## [0.1.0] - 2024-08-01
 ### Added
