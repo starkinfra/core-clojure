@@ -1,4 +1,4 @@
-(defproject org.clojars.stark-mtkgs/core-clojure "0.1.0"
+(defproject com.starkinfra/starkcore "0.2.0"
   :description "Core functionalities for the StarkInfra, StarkBank and StarkSign Clojure SDKs"
   :url "https://github.com/starkinfra/core-clojure"
   :license {:name "MIT"
@@ -11,6 +11,5 @@
     [clj-time "0.15.2"]
     [cheshire "5.10.0"]]
   :repl-options {:init-ns core-clojure.core}
-  :signing {:gpg-key "0CD53A18"}
 )
 
