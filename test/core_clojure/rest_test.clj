@@ -94,19 +94,20 @@
 
 (deftest rest-post
   (testing "post method "
-    (let [invoices {:amount 400000}
-          corporate-invoice (rest/post
-                             "bank"
-                             "0.0.0"
-                             (user)
-                             "corporate-invoice"
-                             invoices
-                             ""
-                             "v2"
-                             "en-US"
-                             15)]
-      (is (int?
-           (:amount (:invoice corporate-invoice)))))))
+    (let [payload {:invoices [{:amount 100
+                               :name "Iron Bank S.A."
+                               :taxId "20.018.183/0001-80"}]}
+          response (rest/post
+                    "bank"
+                    "0.0.0"
+                    (user)
+                    "invoice"
+                    payload
+                    ""
+                    "v2"
+                    "en-US"
+                    15)]
+      (is (= 100 (:amount (first (:invoices response))))))))
 
 (deftest rest-post-multi
   (testing "post multi method "
@@ -131,19 +132,27 @@
 
 (deftest rest-post-single
   (testing "post single method "
-    (let [invoices {:amount 400000}
-          corporate-invoice (rest/post-single
-                    "bank"
-                    "0.0.0"
-                    (user)
-                    "corporate-invoice"
-                    invoices
-                    ""
-                    "v2"
-                    "en-US"
-                    15)]
-      (is (int?
-           (:amount corporate-invoice))))))
+    (let [webhook-url (str "https://webhook.site/" (java.util.UUID/randomUUID))
+          payload {:url webhook-url :subscriptions ["transfer" "boleto-payment"]}
+          webhook (rest/post-single
+                   "bank"
+                   "0.0.0"
+                   (user)
+                   "webhook"
+                   payload
+                   ""
+                   "v2"
+                   "en-US"
+                   15)]
+      (is (string? (:url webhook)))
+      (is (= webhook-url (:url webhook)))
+      (rest/delete-id "bank" "0.0.0" (user) "webhook" (:id webhook) "v2" "en-US" 15)
+      (try
+        (rest/get-id "bank" "0.0.0" (user) "webhook" (:id webhook) {} "v2" "en-US" 15)
+        (is false "Webhook still exists after delete")
+        (catch clojure.lang.ExceptionInfo e
+          (is (= "invalidWebhookId"
+                 (:code (first (:errors (ex-data e)))))))))))
 
 (deftest rest-post-sub-resource
   (testing "post sub resource method "
@@ -153,9 +162,9 @@
                        (user)
                        "merchant-session"
                        {:allowedFundingTypes ["debit" "credit"]
-                        :allowedInstallments [{:totalAmount 0 :count 1}
-                                              {:totalAmount 120 :count 2}
-                                              {:totalAmount 180 :count 12}]
+                        :allowedInstallments [{:totalAmount 500 :count 1}
+                                              {:totalAmount 1000 :count 2}
+                                              {:totalAmount 6000 :count 12}]
                         :expiration 3600
                         :challengeMode "disabled"
                         :tags ["yourTags"]}
@@ -164,7 +173,7 @@
                        "en-US"
                        15))
           merchant-session {
-                            :amount 180
+                            :amount 6000
                             :installmentCount 12
                             :cardExpiration "2035-01"
                             :cardNumber "5277696455399733"

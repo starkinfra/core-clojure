@@ -12,6 +12,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - PATCH version when backwards compatible bug **fixes** are implemented.
 
 ## [Unreleased]
+### Fixed
+- integration test fixtures for rest-post, rest-post-single, and rest-post-sub-resource
 
 ## [0.2.0] - 2024-09-16
 ### Added
