@@ -94,21 +94,20 @@
 
 (deftest rest-post
   (testing "post method "
-    (let [webhook-url (str "https://webhook.site/" (java.util.UUID/randomUUID))
-          payload {:url webhook-url :subscriptions ["transfer"]}
+    (let [payload {:invoices [{:amount 100
+                               :name "Iron Bank S.A."
+                               :taxId "20.018.183/0001-80"}]}
           response (rest/post
                     "bank"
                     "0.0.0"
                     (user)
-                    "webhook"
+                    "invoice"
                     payload
                     ""
                     "v2"
                     "en-US"
-                    15)
-          webhook (:webhook response)]
-      (rest/delete-id "bank" "0.0.0" (user) "webhook" (:id webhook) "v2" "en-US" 15)
-      (is (= webhook-url (:url webhook))))))
+                    15)]
+      (is (= 100 (:amount (first (:invoices response))))))))
 
 (deftest rest-post-multi
   (testing "post multi method "
@@ -134,7 +133,7 @@
 (deftest rest-post-single
   (testing "post single method "
     (let [webhook-url (str "https://webhook.site/" (java.util.UUID/randomUUID))
-          payload {:url webhook-url :subscriptions ["transfer"]}
+          payload {:url webhook-url :subscriptions ["transfer" "boleto-payment"]}
           webhook (rest/post-single
                    "bank"
                    "0.0.0"
@@ -145,8 +144,15 @@
                    "v2"
                    "en-US"
                    15)]
+      (is (string? (:url webhook)))
+      (is (= webhook-url (:url webhook)))
       (rest/delete-id "bank" "0.0.0" (user) "webhook" (:id webhook) "v2" "en-US" 15)
-      (is (= webhook-url (:url webhook))))))
+      (try
+        (rest/get-id "bank" "0.0.0" (user) "webhook" (:id webhook) {} "v2" "en-US" 15)
+        (is false "Webhook still exists after delete")
+        (catch clojure.lang.ExceptionInfo e
+          (is (= "invalidWebhookId"
+                 (:code (first (:errors (ex-data e)))))))))))
 
 (deftest rest-post-sub-resource
   (testing "post sub resource method "
