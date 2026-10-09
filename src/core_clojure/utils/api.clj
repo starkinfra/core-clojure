@@ -13,6 +13,8 @@
       (.endsWith last-name "s") (keyword last-name)
       (and (.endsWith last-name "y") (not (.endsWith last-name "ey")))
       (keyword (str (subs last-name 0 (dec (count last-name))) "ies"))
+      (or (.endsWith last-name "ch") (.endsWith last-name "sh") (.endsWith last-name "x"))
+      (keyword (str last-name "es"))
       :else (keyword (str last-name "s")))))
 
 (defn endpoint [resource]
