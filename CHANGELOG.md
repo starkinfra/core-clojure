@@ -12,6 +12,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - PATCH version when backwards compatible bug **fixes** are implemented.
 
 ## [Unreleased]
+
+## [0.3.0] - 2026-10-14
 ### Fixed
 - plural of resource names ending in "ch", "sh" or "x", which now take "es" (speech becomes speeches)
 
