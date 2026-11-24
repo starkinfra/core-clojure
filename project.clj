@@ -1,4 +1,4 @@
-(defproject com.starkinfra/starkcore "0.2.0"
+(defproject com.starkinfra/starkcore "0.3.0"
   :description "Core functionalities for the StarkInfra, StarkBank and StarkSign Clojure SDKs"
   :url "https://github.com/starkinfra/core-clojure"
   :license {:name "MIT"
