@@ -185,6 +185,27 @@
     (resource (cast-keys-to-kebab (json-to-map (:content @request)))))
   )
 
+(defn patch-multi
+  [host sdk-version user resource-name payload query api-version language timeout]
+  (let [request (atom "")
+        resource (last-name-plural resource-name)
+        entities-map (build-resource-map resource payload)]
+    (reset! request (fetch
+                     host
+                     sdk-version
+                     user
+                     :patch
+                     resource-name
+                     entities-map
+                     query
+                     api-version
+                     language
+                     timeout
+                     ""
+                     true))
+    (resource (cast-keys-to-kebab (json-to-map (:content @request)))))
+  )
+
 (defn post-single 
   [host sdk-version user resource-name payload query api-version language timeout]
   (let [request (atom "")
